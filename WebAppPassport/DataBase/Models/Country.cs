@@ -19,5 +19,5 @@ public class Country
     public required Passport Passport { get; set; }
     
     public required ICollection<PassportCountryVisa> PassportCountryVisas { get; set; }
-    public required ICollection<User> Users { get; set; }
+    public ICollection<User>? Users { get; set; }
 }

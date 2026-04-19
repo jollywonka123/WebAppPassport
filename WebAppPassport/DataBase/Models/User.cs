@@ -14,6 +14,6 @@ public class User
     [MaxLength(2)]
     public string? MotherlandIso { get; set; }
     
-    public required ICollection<Passport> Passports { get; set; }
-    public required ICollection<Country> Countries { get; set; }
+    public ICollection<Passport>? Passports { get; set; }
+    public ICollection<Country>? Countries { get; set; }
 }
