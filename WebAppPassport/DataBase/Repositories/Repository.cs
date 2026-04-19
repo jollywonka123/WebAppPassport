@@ -1,9 +1,12 @@
+using System.Globalization;
 using Microsoft.EntityFrameworkCore;
 using WebAppPassport.DataBase.Models;
+using WebAppPassport.DataBase.StaticData.ModelsForStatic;
+using CsvHelper;
 
 namespace WebAppPassport.DataBase.Repositories;
 
-public class Repository(AppContext context): IRepository
+public class Repository(AppContext context): IRepository, IStaticRepository
 {
     protected readonly AppContext Context = context;
     
@@ -118,5 +121,23 @@ public class Repository(AppContext context): IRepository
         await Context.Destinations.AddAsync(pcv);
         
         await Context.SaveChangesAsync();
+    }
+
+    public ICollection<LossModelByDualCitizenship> GetAllLossModels()
+    {
+        var path = Path.Combine(Directory.GetCurrentDirectory(), "..", "StaticData", "models.csv");
+        using var reader = new StreamReader(path);
+        using var csv = new CsvReader(reader, CultureInfo.InvariantCulture);
+        var records = csv.GetRecords<LossModelByDualCitizenship>().ToList();
+        return records;
+    }
+
+    public ICollection<PopulationModel> GetAllPopulations()
+    {
+        var path = Path.Combine(Directory.GetCurrentDirectory(), "..", "StaticData", "population.csv");
+        using var reader = new StreamReader(path);
+        using var csv = new CsvReader(reader, CultureInfo.InvariantCulture);
+        var records = csv.GetRecords<PopulationModel>().ToList();
+        return records;
     }
 }

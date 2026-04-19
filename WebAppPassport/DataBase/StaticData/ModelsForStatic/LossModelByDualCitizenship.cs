@@ -1,6 +1,6 @@
 using CsvHelper.Configuration.Attributes;
 
-namespace WebAppPassport.Services.BackgroundServices.StaticData.ModelsForStatic;
+namespace WebAppPassport.DataBase.StaticData.ModelsForStatic;
 
 public class LossModelByDualCitizenship
 {
