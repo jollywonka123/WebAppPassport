@@ -1,7 +1,7 @@
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
 using WebAppPassport.DataBase.Models;
-using AppContext = WebAppPassport.DataBase.AppContext;
+
 
 namespace WebAppPassport.DataBase.Repositories;
 

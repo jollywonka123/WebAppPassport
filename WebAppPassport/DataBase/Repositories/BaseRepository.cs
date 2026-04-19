@@ -1,5 +1,3 @@
-using Microsoft.EntityFrameworkCore;
-using AppContext = WebAppPassport.DataBase.AppContext;
 
 namespace WebAppPassport.DataBase.Repositories;
 
