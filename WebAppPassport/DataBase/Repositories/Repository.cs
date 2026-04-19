@@ -91,13 +91,32 @@ public class Repository(AppContext context): IRepository
         await Context.SaveChangesAsync();
     }
 
-    public Task<ICollection<PassportCountryVisa>> GetAllDestinationsAsync()
+    public async Task<ICollection<PassportCountryVisa>> GetAllDestinationsAsync()
     {
-        throw new NotImplementedException();
+        return await Context.Destinations
+            .Include(x => x.Country)
+            .Include(x => x.Passport)
+            .ToListAsync();
     }
 
-    public Task AddDestinationAsync(PassportCountryVisa pcv)
+    public async Task AddDestinationAsync(PassportCountryVisa pcv)
     {
-        throw new NotImplementedException();
+        var foundPassport = await Context.Passports
+            .FirstOrDefaultAsync(x => x.IsoShortCode == pcv.Passport.IsoShortCode);
+        if (foundPassport == null)
+            throw new ArgumentException("While adding Destination Passport was not found");
+        
+        var foundCountry = await Context.Countries
+            .FirstOrDefaultAsync(x => x.IsoShortCode == pcv.Country.IsoShortCode);
+        
+        if (foundCountry == null)
+            throw new ArgumentException("While adding Destination Country was not found");
+        
+        pcv.Passport = foundPassport;
+        pcv.Country = foundCountry;
+        
+        await Context.Destinations.AddAsync(pcv);
+        
+        await Context.SaveChangesAsync();
     }
 }
