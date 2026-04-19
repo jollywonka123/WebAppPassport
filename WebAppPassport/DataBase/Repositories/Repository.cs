@@ -6,10 +6,10 @@ using CsvHelper;
 
 namespace WebAppPassport.DataBase.Repositories;
 
-public class Repository(AppContext context): IRepository, IStaticRepository
+public class Repository(AppContext context) : IRepository
 {
     protected readonly AppContext Context = context;
-    
+
     public async Task AddPassportCountryAsync(Country country, Passport passport)
     {
         passport.Country = country;
@@ -26,6 +26,7 @@ public class Repository(AppContext context): IRepository, IStaticRepository
         {
             passports.ElementAt(i).Country = countries.ElementAt(i);
         }
+
         await Context.Passports.AddRangeAsync(passports);
         await Context.Countries.AddRangeAsync(countries);
         await Context.SaveChangesAsync();
@@ -58,10 +59,10 @@ public class Repository(AppContext context): IRepository, IStaticRepository
         if (foundPassport == null)
             throw new ArgumentException("While linking Passport to User, Passport was not found");
         var foundUser = await Context.Users.FirstOrDefaultAsync(x => x.Username == user.Username);
-        
+
         if (foundUser == null)
             throw new ArgumentException("While linking Passport to User, User was not found");
-        
+
         foundUser.Passports!.Add(foundPassport);
         await Context.SaveChangesAsync();
     }
@@ -72,10 +73,10 @@ public class Repository(AppContext context): IRepository, IStaticRepository
         if (foundCountry == null)
             throw new ArgumentException("While linking Country to User, Country was not found");
         var foundUser = await Context.Users.FirstOrDefaultAsync(x => x.Username == user.Username);
-        
+
         if (foundUser == null)
             throw new ArgumentException("While linking Passport to User, User was not found");
-        
+
         foundUser.Countries!.Add(foundCountry);
         await Context.SaveChangesAsync();
     }
@@ -83,14 +84,14 @@ public class Repository(AppContext context): IRepository, IStaticRepository
     public async Task UpdateUserAsync(User user)
     {
         var foundUser = await Context.Users.FirstOrDefaultAsync(x => x.Username == user.Username);
-        
+
         if (foundUser == null)
             throw new ArgumentException("While updating User, User was not found");
-        
+
         foundUser.Username = user.Username;
         foundUser.HashedPassword = user.HashedPassword;
         foundUser.MotherlandIso = user.MotherlandIso;
-        
+
         await Context.SaveChangesAsync();
     }
 
@@ -108,36 +109,18 @@ public class Repository(AppContext context): IRepository, IStaticRepository
             .FirstOrDefaultAsync(x => x.IsoShortCode == pcv.Passport.IsoShortCode);
         if (foundPassport == null)
             throw new ArgumentException("While adding Destination Passport was not found");
-        
+
         var foundCountry = await Context.Countries
             .FirstOrDefaultAsync(x => x.IsoShortCode == pcv.Country.IsoShortCode);
-        
+
         if (foundCountry == null)
             throw new ArgumentException("While adding Destination Country was not found");
-        
+
         pcv.Passport = foundPassport;
         pcv.Country = foundCountry;
-        
+
         await Context.Destinations.AddAsync(pcv);
-        
+
         await Context.SaveChangesAsync();
-    }
-
-    public ICollection<LossModelByDualCitizenship> GetAllLossModels()
-    {
-        var path = Path.Combine(Directory.GetCurrentDirectory(), "..", "StaticData", "models.csv");
-        using var reader = new StreamReader(path);
-        using var csv = new CsvReader(reader, CultureInfo.InvariantCulture);
-        var records = csv.GetRecords<LossModelByDualCitizenship>().ToList();
-        return records;
-    }
-
-    public ICollection<PopulationModel> GetAllPopulations()
-    {
-        var path = Path.Combine(Directory.GetCurrentDirectory(), "..", "StaticData", "population.csv");
-        using var reader = new StreamReader(path);
-        using var csv = new CsvReader(reader, CultureInfo.InvariantCulture);
-        var records = csv.GetRecords<PopulationModel>().ToList();
-        return records;
     }
 }

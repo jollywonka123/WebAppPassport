@@ -1,5 +1,5 @@
 using EfEntity = WebAppPassport.DataBase.Models;
-using ServiceEntity = WebAppPassport.Services.ServiceModels;
+using ServiceEntity = WebAppPassport.Services.Models;
 
 namespace WebAppPassport.Converters;
 
@@ -14,6 +14,7 @@ public static class FromServiceToEfConverter
             Population = entity.Population,
             DualCitizenshipAllowed = entity.DualCitizenshipAllowed,
             PassportValidityRequirementInSeconds = entity.PassportValidityRequirementInSeconds,
+            Area = entity.Area,
         };
     }
 

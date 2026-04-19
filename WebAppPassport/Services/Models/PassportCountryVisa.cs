@@ -1,6 +1,6 @@
 using WebAppPassport.Common;
 
-namespace WebAppPassport.Services.ServiceModels;
+namespace WebAppPassport.Services.Models;
 
 public class PassportCountryVisa
 {

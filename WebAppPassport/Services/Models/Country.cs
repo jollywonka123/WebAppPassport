@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace WebAppPassport.Services.ServiceModels;
+namespace WebAppPassport.Services.Models;
 
 public class Country
 {
@@ -12,6 +12,8 @@ public class Country
     public required string IsoShortCode { get; set; }
     
     public long? Population { get; set; }
+    
+    public double? Area { get; set; }
     public bool? DualCitizenshipAllowed { get; set; }
     public long? PassportValidityRequirementInSeconds { get; set; }
     

@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace WebAppPassport.Services.ServiceModels;
+namespace WebAppPassport.Services.Models;
 
 public class User
 {

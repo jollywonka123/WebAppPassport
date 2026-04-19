@@ -16,6 +16,7 @@ public class Country
     public bool? DualCitizenshipAllowed { get; set; }
     public long? PassportValidityRequirementInSeconds { get; set; }
     
+    public double? Area { get; set; }
     public Passport? Passport { get; set; }
     
     public ICollection<PassportCountryVisa>? PassportCountryVisas { get; set; }
