@@ -10,6 +10,8 @@ public class CountryConfiguration: IEntityTypeConfiguration<Country>
     {
         builder.HasKey(x => x.Id);
         
+        builder.HasIndex(x => x.IsoShortCode).IsUnique();
+        
         builder.HasOne(x => x.Passport)
             .WithOne(x => x.Country)
             .HasForeignKey<Passport>(x => x.CountryId);

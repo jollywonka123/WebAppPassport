@@ -1,10 +1,9 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace WebAppPassport.DataBase.Models;
+namespace WebAppPassport.Services.ServiceModels;
 
 public class Country
 {
-    public Guid Id { get; set; }
     
     [MaxLength(100)]
     public required string Name { get; set; }
@@ -18,6 +17,4 @@ public class Country
     
     public Passport? Passport { get; set; }
     
-    public ICollection<PassportCountryVisa>? PassportCountryVisas { get; set; }
-    public ICollection<User>? Users { get; set; }
 }

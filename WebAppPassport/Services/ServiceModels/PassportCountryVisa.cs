@@ -1,16 +1,10 @@
 using WebAppPassport.Common;
 
-namespace WebAppPassport.DataBase.Models;
+namespace WebAppPassport.Services.ServiceModels;
 
 public class PassportCountryVisa
 {
-    public Guid Id { get; set; }
-    public Guid UsingPassportId { get; set; }
-    public Guid ToCountryId { get; set; }
-    
     public required VisaType VisaType { get; set; }
-    
     public required Passport Passport { get; set; }
     public required Country Country { get; set; }
-    
 }
