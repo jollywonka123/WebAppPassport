@@ -22,7 +22,6 @@
       <Folder Include="Controllers\" />
       <Folder Include="Converters\" />
       <Folder Include="DTOs\" />
-      <Folder Include="Repositories\" />
       <Folder Include="Services\" />
     </ItemGroup>
 
