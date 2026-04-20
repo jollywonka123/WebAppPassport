@@ -5,7 +5,7 @@ using WebAppPassport.Services.Models;
 
 namespace WebAppPassport.Services.StaticDataServices;
 
-public class StaticService
+public class StaticService: IStaticService
 {
     private ICollection<PopulationModel>  _populations;
     

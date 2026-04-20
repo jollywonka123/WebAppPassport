@@ -1,14 +1,11 @@
+using WebAppPassport.Services.Models;
+
 namespace WebAppPassport.Services.ExternalApiServices;
 
 public interface IExternalApiService
 {
-    public Task GetAllCountriesAsync();
+    public Task<(ICollection<Country>, ICollection<Passport>)> GetAllCountriesAndPassportsAsync();
+
+    public Task<ICollection<PassportCountryVisa>> GetAllDestinationsByPassportAsync(Passport passport);
     
 }
-
-/*
- * с помощью Henly можно получить след данные
- * для Country: Name, Iso, | DualCitizenship / Population, PassportValidity requirement
- * для Passport: Name, Iso,
- * для PassportCountryVisa: VisaType
- */
