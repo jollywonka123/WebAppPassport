@@ -46,4 +46,26 @@ public static class FromServiceToEfConverter
             MotherlandIso =  entity.MotherlandIso,
         };
     }
+    
+    public static ICollection<EfEntity.Passport> ToEfEntity(this ICollection<ServiceEntity.Passport> entities)
+    {
+        List<EfEntity.Passport> newPassports = new();
+        
+        foreach (var entity in entities)
+        {
+            newPassports.Add(entity.ToEfEntity());
+        }
+        return newPassports;
+    }
+    
+    public static ICollection<EfEntity.Country> ToEfEntity(this ICollection<ServiceEntity.Country> entities)
+    {
+        List<EfEntity.Country> newCountries = new();
+        
+        foreach (var entity in entities)
+        {
+            newCountries.Add(entity.ToEfEntity());
+        }
+        return newCountries;
+    }
 }

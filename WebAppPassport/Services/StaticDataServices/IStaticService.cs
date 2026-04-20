@@ -4,5 +4,5 @@ namespace WebAppPassport.Services.StaticDataServices;
 
 public interface IStaticService
 {
-    public void EnrichCountry(ref Country country);
+    public void EnrichCountry(Country country);
 }

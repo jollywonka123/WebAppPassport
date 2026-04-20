@@ -17,7 +17,7 @@ public class StaticService: IStaticService
         _populations = GetAllPopulations();
     }
 
-    public void EnrichCountry(ref Country country)
+    public void EnrichCountry(Country country)
     {
         foreach (var population in _populations)
         {
@@ -42,7 +42,7 @@ public class StaticService: IStaticService
     
     private ICollection<PopulationModel> GetAllPopulations()
     {
-        var path = Path.Combine(Directory.GetCurrentDirectory(), "StaticData", "population.csv");
+        var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Services", "StaticDataServices", "StaticData", "population.csv");
         using var reader = new StreamReader(path);
         using var csv = new CsvReader(reader, CultureInfo.InvariantCulture);
         var records = csv.GetRecords<PopulationModel>().ToList();
@@ -51,7 +51,7 @@ public class StaticService: IStaticService
     
     private ICollection<LossModelByDualCitizenship> GetAllLosses() 
     {
-        var path = Path.Combine(Directory.GetCurrentDirectory(), "StaticData", "models.csv");
+        var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Services", "StaticDataServices", "StaticData", "models.csv");
         using var reader = new StreamReader(path);
         using var csv = new CsvReader(reader, CultureInfo.InvariantCulture);
         var records = csv.GetRecords<LossModelByDualCitizenship>().ToList();

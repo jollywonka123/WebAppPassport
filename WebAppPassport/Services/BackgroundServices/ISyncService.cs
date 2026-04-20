@@ -4,7 +4,7 @@ public interface ISyncService
 {
     public Task StartInfiniteSyncAsync();
     
-    protected Task SyncIterAsync();
+    public Task SyncIterAsync();
     
     protected DateTime? GetLastSyncTimeAsync();
 
