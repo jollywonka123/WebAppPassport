@@ -68,4 +68,16 @@ public static class FromEfToServiceConverter
         }
         return newCountries;
     }
+    
+    public static ICollection<ServiceEntity.PassportCountryVisa> ToServiceEntity(
+        this ICollection<EfEntity.PassportCountryVisa> entities)
+    {
+        List<ServiceEntity.PassportCountryVisa> newDest = new();
+        
+        foreach (var entity in entities)
+        {
+            newDest.Add(entity.ToServiceEntity());
+        }
+        return newDest;
+    }
 }

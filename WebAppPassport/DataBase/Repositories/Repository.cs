@@ -123,4 +123,31 @@ public class Repository(AppContext context) : IRepository
 
         await Context.SaveChangesAsync();
     }
+
+    public async Task AddDestinationsRangeAsync(ICollection<PassportCountryVisa> pcvs)
+    {
+        var allPassports = await Context.Passports
+            .ToListAsync();
+        
+        var allCountries = await Context.Countries
+            .ToListAsync();
+
+        foreach (var pcv in pcvs)
+        {
+            foreach (var passport in allPassports)
+            {
+                if (pcv.Passport.IsoShortCode == passport.IsoShortCode)
+                    pcv.Passport = passport;
+            }
+
+            foreach (var country in allCountries)
+            {
+                if (pcv.Country.IsoShortCode == country.IsoShortCode)
+                    pcv.Country = country;
+            }
+            
+            await Context.Destinations.AddRangeAsync(pcv);
+            await Context.SaveChangesAsync();
+        }
+    }
 }

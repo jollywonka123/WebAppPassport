@@ -9,5 +9,7 @@ public class PassportCountryVisaConfiguration: IEntityTypeConfiguration<Passport
     public void Configure(EntityTypeBuilder<PassportCountryVisa> builder)
     {
         builder.HasKey(x => x.Id);
+        
+        //builder.HasIndex(x => new {x.Country, x.Passport, x.VisaType}).IsUnique();
     }
 }

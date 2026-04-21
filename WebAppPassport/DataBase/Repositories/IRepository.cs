@@ -27,5 +27,7 @@ public interface IRepository
     public Task<ICollection<PassportCountryVisa>> GetAllDestinationsAsync();
     
     public Task AddDestinationAsync(PassportCountryVisa pcv);
-    
+
+    public Task AddDestinationsRangeAsync(ICollection<PassportCountryVisa> pcvs);
+
 }

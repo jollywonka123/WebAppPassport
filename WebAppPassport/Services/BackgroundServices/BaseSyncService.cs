@@ -39,12 +39,13 @@ public class BaseSyncService(
         foreach (var passportItem in countriesAndPassports.Item2)
         {
             var dest = await _apiService.GetAllDestinationsByPassportAsync(passportItem);
-            if (!dest.Any())
+            if (dest.Count == 0)
             {
                 _logger.LogWarning($"Destinations for passport \'{passportItem.Name}\' not found");
                 continue;
             }
             listOfDestinations.Add(dest);
+            _logger.LogInformation($"To list of destinations list were added {dest.Count} destinations");
         }
 
         for (int i = 0; i < countriesAndPassports.Item1.Count; i++)
@@ -60,16 +61,13 @@ public class BaseSyncService(
             }
         }
 
-        await _repository.AddPassportCountryRangeAsync(countriesAndPassports.Item2.ToEfEntity(),
-            countriesAndPassports.Item1.ToEfEntity());
+        //await _repository.AddPassportCountryRangeAsync(countriesAndPassports.Item2.ToEfEntity(),
+        //    countriesAndPassports.Item1.ToEfEntity());
 
-        foreach (var destOfDest in listOfDestinations)
-        {
-            foreach (var dest in destOfDest)
-            {
-                await _repository.AddDestinationAsync(dest.ToEfEntity());
-            }
-        }
+
+        var destAll = listOfDestinations.SelectMany(x => x)
+            .ToList();
+        await _repository.AddDestinationsRangeAsync(destAll.ToEfEntity());
     }
 
     public async Task SyncIterAsync()
