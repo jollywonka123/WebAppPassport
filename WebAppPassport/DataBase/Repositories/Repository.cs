@@ -12,7 +12,9 @@ public class Repository(AppContext context) : IRepository
 
     public async Task AddPassportCountryAsync(Country country, Passport passport)
     {
-        passport.Country = country;
+        if (passport.Countries == null)
+            passport.Countries = new List<Country>();
+        passport.Countries.Add(country);
         await Context.Passports.AddAsync(passport);
         await Context.Countries.AddAsync(country);
         await Context.SaveChangesAsync();
@@ -24,7 +26,9 @@ public class Repository(AppContext context) : IRepository
             throw new ArgumentException("Passport count must be equal to count of country");
         for (int i = 0; i < passports.Count; i++)
         {
-            passports.ElementAt(i).Country = countries.ElementAt(i);
+            if (passports.ElementAt(i).Countries == null)
+                passports.ElementAt(i).Countries = new List<Country>();
+            passports.ElementAt(i).Countries!.Add(countries.ElementAt(i));
         }
 
         await Context.Passports.AddRangeAsync(passports);
@@ -39,7 +43,7 @@ public class Repository(AppContext context) : IRepository
 
     public async Task<ICollection<Passport>?> GetAllPassportsAsync()
     {
-        return await Context.Passports.Include(x => x.Country).ToListAsync();
+        return await Context.Passports.Include(x => x.Countries).ToListAsync();
     }
 
     public async Task<ICollection<Country>?> GetAllCountriesAsync()

@@ -11,8 +11,8 @@ public class Passport
     
     [MaxLength(2)]
     public required string IsoShortCode { get; set; }
-    public Country? Country { get; set; }
-    public Guid CountryId { get; set; }
+    public ICollection<Country>? Countries { get; set; }
+    
     
     public ICollection<PassportCountryVisa>? PassportCountryVisas { get; set; }
     
