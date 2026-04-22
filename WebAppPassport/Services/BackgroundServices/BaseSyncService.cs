@@ -2,77 +2,69 @@ using WebAppPassport.Converters;
 using WebAppPassport.DataBase.Repositories;
 using WebAppPassport.Services.ExternalApiServices;
 using WebAppPassport.Services.Models;
-using WebAppPassport.Services.StaticDataServices;
 
 namespace WebAppPassport.Services.BackgroundServices;
 
 public class BaseSyncService(
-    ILogger<BaseSyncService> logger, 
-    IExternalApiService apiService, 
-    IStaticService staticService,
+    ILogger<BaseSyncService> logger,
+    IExternalApiService apiService,
     IRepository repository
     ) : ISyncService, IHostedService
 {
     private readonly ILogger<BaseSyncService> _logger = logger;
-    
+
     private IRepository _repository = repository;
-    
+
     private IExternalApiService _apiService = apiService;
-    
-    private IStaticService _staticService = staticService;
-    
+
     protected DateTime? LastSyncTime;
     
     protected int CooldownHours = 24;
 
-    public Task StartInfiniteSyncAsync()
+    public async Task StartInfiniteSyncAsync()
     {
-        throw new NotImplementedException();
-    }
-
-    private async Task InitDataAsync()
-    {
-        var countriesAndPassports = await _apiService.GetAllCountriesAndPassportsAsync();
-        if (!countriesAndPassports.Item1.Any()) _logger.LogWarning("Countries and passports are empty after request");
-        List<ICollection<PassportCountryVisa>> listOfDestinations = new();
-
-        foreach (var passportItem in countriesAndPassports.Item2)
+        while (true)
         {
-            var dest = await _apiService.GetAllDestinationsByPassportAsync(passportItem);
-            if (dest.Count == 0)
+            try
             {
-                _logger.LogWarning($"Destinations for passport \'{passportItem.Name}\' not found");
-                continue;
+                await SyncIterAsync();
+                LastSyncTime = DateTime.UtcNow;
+                _logger.LogInformation($"Sync completed at {LastSyncTime}");
             }
-            listOfDestinations.Add(dest);
-            _logger.LogInformation($"To list of destinations list were added {dest.Count} destinations");
-        }
-
-        for (int i = 0; i < countriesAndPassports.Item1.Count; i++)
-        {
-            _staticService.EnrichCountry(countriesAndPassports.Item1.ElementAt(i));
-        }
-
-        for (int i = 0; i < listOfDestinations.Count; i++)
-        {
-            for (int j = 0; j < listOfDestinations.ElementAt(i).Count; j++)
+            catch (Exception ex)
             {
-                _staticService.EnrichCountry(listOfDestinations.ElementAt(i).ElementAt(j).Country);
+                _logger.LogError(ex, "Error during sync iteration");
             }
+
+            await Task.Delay(TimeSpan.FromHours(CooldownHours));
         }
-
-        //await _repository.AddPassportCountryRangeAsync(countriesAndPassports.Item2.ToEfEntity(),
-        //    countriesAndPassports.Item1.ToEfEntity());
-
-
-        var destAll = listOfDestinations.SelectMany(x => x)
-            .ToList();
-        await _repository.AddDestinationsRangeAsync(destAll.ToEfEntity());
     }
 
     public async Task SyncIterAsync()
     {
-        await InitDataAsync();
+        var efPassports = await _repository.GetAllPassportsAsync();
+        if (efPassports == null || !efPassports.Any())
+        {
+            _logger.LogWarning("No passports found in DB, skipping sync");
+            return;
+        }
+
+        var passports = efPassports.ToServiceEntity();
+        List<PassportCountryVisa> allDestinations = new();
+
+        foreach (var passport in passports)
+        {
+            var destinations = await _apiService.GetAllDestinationsByPassportAsync(passport);
+            if (destinations.Count == 0)
+            {
+                _logger.LogWarning($"No destinations returned for passport '{passport.Name}' during sync");
+                continue;
+            }
+            allDestinations.AddRange(destinations);
+        }
+
+        await _repository.UpdateDestinationsRangeAsync(allDestinations.ToEfEntity());
+        _logger.LogInformation($"Updated {allDestinations.Count} destination rules");
     }
 
     public DateTime? GetLastSyncTimeAsync()
@@ -86,9 +78,10 @@ public class BaseSyncService(
             CooldownHours = hours;
     }
 
-    public async Task StartAsync(CancellationToken cancellationToken)
+    public Task StartAsync(CancellationToken cancellationToken)
     {
-        await InitDataAsync();
+        _ = StartInfiniteSyncAsync();
+        return Task.CompletedTask;
     }
 
     public Task StopAsync(CancellationToken cancellationToken)

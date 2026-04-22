@@ -30,4 +30,6 @@ public interface IRepository
 
     public Task AddDestinationsRangeAsync(ICollection<PassportCountryVisa> pcvs);
 
+    public Task UpdateDestinationsRangeAsync(ICollection<PassportCountryVisa> pcvs);
+
 }

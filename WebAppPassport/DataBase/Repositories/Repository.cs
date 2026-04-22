@@ -132,7 +132,7 @@ public class Repository(AppContext context) : IRepository
     {
         var allPassports = await Context.Passports
             .ToListAsync();
-        
+
         var allCountries = await Context.Countries
             .ToListAsync();
 
@@ -149,9 +149,29 @@ public class Repository(AppContext context) : IRepository
                 if (pcv.Country.IsoShortCode == country.IsoShortCode)
                     pcv.Country = country;
             }
-            
+
             await Context.Destinations.AddRangeAsync(pcv);
             await Context.SaveChangesAsync();
         }
+    }
+
+    public async Task UpdateDestinationsRangeAsync(ICollection<PassportCountryVisa> pcvs)
+    {
+        var existing = await Context.Destinations
+            .Include(x => x.Passport)
+            .Include(x => x.Country)
+            .ToListAsync();
+
+        foreach (var pcv in pcvs)
+        {
+            var found = existing.FirstOrDefault(x =>
+                x.Passport.IsoShortCode == pcv.Passport.IsoShortCode &&
+                x.Country.IsoShortCode == pcv.Country.IsoShortCode);
+
+            if (found != null)
+                found.VisaType = pcv.VisaType;
+        }
+
+        await Context.SaveChangesAsync();
     }
 }
