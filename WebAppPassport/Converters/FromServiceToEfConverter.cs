@@ -10,7 +10,7 @@ public static class FromServiceToEfConverter
         return new EfEntity.Country
         {
             Name = entity.Name,
-            IsoShortCode =  entity.IsoShortCode,
+            IsoShortCode = entity.IsoShortCode,
             Population = entity.Population,
             DualCitizenshipAllowed = entity.DualCitizenshipAllowed,
             PassportValidityRequirementInSeconds = entity.PassportValidityRequirementInSeconds,
@@ -24,6 +24,13 @@ public static class FromServiceToEfConverter
         {
             Name = entity.Name,
             IsoShortCode = entity.IsoShortCode,
+            MobilityScore = entity.MobilityScore,
+            WorldRank = entity.WorldRank,
+            VisaFreeCount = entity.VisaFreeCount,
+            VisaOnArrivalCount = entity.VisaOnArrivalCount,
+            EVisaCount = entity.EVisaCount,
+            RequiredVisaCount = entity.RequiredVisaCount,
+            TotalPopulation = entity.TotalPopulation
         };
     }
 
@@ -33,51 +40,27 @@ public static class FromServiceToEfConverter
         {
             Passport = entity.Passport.ToEfEntity(),
             Country = entity.Country.ToEfEntity(),
-            VisaType =  entity.VisaType,
+            VisaType = entity.VisaType,
         };
-    }
-
-    public static ICollection<EfEntity.PassportCountryVisa> ToEfEntity(
-        this ICollection<ServiceEntity.PassportCountryVisa> entities)
-    {
-        List<EfEntity.PassportCountryVisa> newDest = new();
-        
-        foreach (var entity in entities)
-        {
-            newDest.Add(entity.ToEfEntity());
-        }
-        return newDest;
     }
 
     public static EfEntity.User ToEfEntity(this ServiceEntity.User entity)
     {
         return new EfEntity.User
         {
-            Username =  entity.Username,
+            Username = entity.Username,
             HashedPassword = entity.HashedPassword,
-            MotherlandIso =  entity.MotherlandIso,
+            MotherlandIso = entity.MotherlandIso,
         };
     }
-    
+
+    public static ICollection<EfEntity.PassportCountryVisa> ToEfEntity(
+        this ICollection<ServiceEntity.PassportCountryVisa> entities)
+        => entities.Select(pcv => pcv.ToEfEntity()).ToList();
+
     public static ICollection<EfEntity.Passport> ToEfEntity(this ICollection<ServiceEntity.Passport> entities)
-    {
-        List<EfEntity.Passport> newPassports = new();
-        
-        foreach (var entity in entities)
-        {
-            newPassports.Add(entity.ToEfEntity());
-        }
-        return newPassports;
-    }
-    
+        => entities.Select(p => p.ToEfEntity()).ToList();
+
     public static ICollection<EfEntity.Country> ToEfEntity(this ICollection<ServiceEntity.Country> entities)
-    {
-        List<EfEntity.Country> newCountries = new();
-        
-        foreach (var entity in entities)
-        {
-            newCountries.Add(entity.ToEfEntity());
-        }
-        return newCountries;
-    }
+        => entities.Select(c => c.ToEfEntity()).ToList();
 }

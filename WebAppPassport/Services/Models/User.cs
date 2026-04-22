@@ -6,10 +6,11 @@ public class User
 {
     [MaxLength(20)]
     public required string Username { get; set; }
-    
+
     public required string HashedPassword { get; set; }
-    
+
     [MaxLength(2)]
     public string? MotherlandIso { get; set; }
-    
+
+    public ICollection<Passport>? Passports { get; set; }
 }

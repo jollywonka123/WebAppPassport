@@ -15,6 +15,14 @@ public class Passport
     
     
     public ICollection<PassportCountryVisa>? PassportCountryVisas { get; set; }
-    
+
     public ICollection<User>? Users { get; set; }
+
+    public int MobilityScore { get; set; }
+    public int WorldRank { get; set; }
+    public int VisaFreeCount { get; set; }
+    public int VisaOnArrivalCount { get; set; }
+    public int EVisaCount { get; set; }
+    public int RequiredVisaCount { get; set; }
+    public long? TotalPopulation { get; set; }
 }

@@ -174,4 +174,73 @@ public class Repository(AppContext context) : IRepository
 
         await Context.SaveChangesAsync();
     }
+
+    public async Task<Passport?> GetPassportWithDestinationsAsync(string isoShortCode)
+    {
+#pragma warning disable CS8620
+        return await Context.Passports
+            .Include(p => p.Countries)
+            .Include(p => p.PassportCountryVisas)
+                .ThenInclude(pcv => pcv.Country)
+            .FirstOrDefaultAsync(p => p.IsoShortCode == isoShortCode);
+#pragma warning restore CS8620
+    }
+
+    public async Task<ICollection<Passport>> GetAllPassportsWithCountriesAndDestinationsAsync()
+    {
+#pragma warning disable CS8620
+        return await Context.Passports
+            .Include(p => p.Countries)
+            .Include(p => p.PassportCountryVisas)
+                .ThenInclude(pcv => pcv.Country)
+            .ToListAsync();
+#pragma warning restore CS8620
+    }
+
+    public async Task<ICollection<Passport>> GetAllPassportsOrderedByRankAsync()
+    {
+        return await Context.Passports
+            .OrderBy(p => p.WorldRank)
+            .ToListAsync();
+    }
+
+    public async Task<Country?> GetCountryWithDestinationsAsync(string isoShortCode)
+    {
+#pragma warning disable CS8620
+        return await Context.Countries
+            .Include(c => c.PassportCountryVisas)
+                .ThenInclude(pcv => pcv.Passport)
+                    .ThenInclude(p => p.Countries)
+            .FirstOrDefaultAsync(c => c.IsoShortCode == isoShortCode);
+#pragma warning restore CS8620
+    }
+
+    public async Task<ICollection<Country>> GetAllCountriesWithPassportAsync()
+    {
+        return await Context.Countries
+            .Include(c => c.Passport)
+            .ToListAsync();
+    }
+
+    public async Task SaveChangesAsync()
+    {
+        await Context.SaveChangesAsync();
+    }
+
+    public async Task<User?> GetUserByUsernameAsync(string username)
+    {
+        return await Context.Users
+            .FirstOrDefaultAsync(u => u.Username == username);
+    }
+
+    public async Task<User?> GetUserWithPassportsAndDestinationsAsync(string username)
+    {
+#pragma warning disable CS8620
+        return await Context.Users
+            .Include(u => u.Passports)
+                .ThenInclude(p => p.PassportCountryVisas)
+                    .ThenInclude(pcv => pcv.Country)
+            .FirstOrDefaultAsync(u => u.Username == username);
+#pragma warning restore CS8620
+    }
 }

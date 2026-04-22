@@ -32,4 +32,20 @@ public interface IRepository
 
     public Task UpdateDestinationsRangeAsync(ICollection<PassportCountryVisa> pcvs);
 
+    public Task<Passport?> GetPassportWithDestinationsAsync(string isoShortCode);
+
+    public Task<ICollection<Passport>> GetAllPassportsWithCountriesAndDestinationsAsync();
+
+    public Task<ICollection<Passport>> GetAllPassportsOrderedByRankAsync();
+
+    public Task<Country?> GetCountryWithDestinationsAsync(string isoShortCode);
+
+    public Task<ICollection<Country>> GetAllCountriesWithPassportAsync();
+
+    public Task SaveChangesAsync();
+
+    public Task<User?> GetUserByUsernameAsync(string username);
+
+    public Task<User?> GetUserWithPassportsAndDestinationsAsync(string username);
+
 }
