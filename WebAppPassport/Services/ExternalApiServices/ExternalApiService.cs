@@ -70,7 +70,7 @@ public class ExternalApiService(ILogger<ExternalApiService> logger) : IExternalA
             ProcessCountryFrom(countryFrom.CollectionEta!, VisaType.EVisa, ref listDestination, passport);
             ProcessCountryFrom(countryFrom.CollectionFree!, VisaType.VisaFree, ref listDestination, passport);
             ProcessCountryFrom(countryFrom.CollectionOnArrival!, VisaType.VisaOnArrival, ref listDestination, passport);
-            ProcessCountryFrom(countryFrom.CollectionOnline!, VisaType.EVisa, ref listDestination, passport);
+            ProcessCountryFrom(countryFrom.CollectionOnline!, VisaType.RequiredVisa, ref listDestination, passport);
             ProcessCountryFrom(countryFrom.CollectionRequired!, VisaType.RequiredVisa, ref listDestination, passport);
         }
 

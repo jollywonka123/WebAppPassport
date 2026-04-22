@@ -1,10 +1,10 @@
-using WebAppPassport.Services.ResponseModels;
+using WebAppPassport.Services.Models;
 
 namespace WebAppPassport.Services.CountryService;
 
 public interface ICountryService
 {
-    Task<ICollection<CountryListItem>> GetAllCountriesAsync();
+    Task<ICollection<Country>> GetAllCountriesAsync();
 
-    Task<CountryDetail?> GetCountryDetailAsync(string isoShortCode);
+    Task<Country?> GetCountryDetailAsync(string isoShortCode);
 }

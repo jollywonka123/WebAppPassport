@@ -6,7 +6,6 @@ using WebAppPassport.Common;
 using WebAppPassport.Converters;
 using WebAppPassport.DataBase.Models;
 using WebAppPassport.DataBase.Repositories;
-using WebAppPassport.Services.ResponseModels;
 using ServiceModels = WebAppPassport.Services.Models;
 
 namespace WebAppPassport.Services.UserService;
@@ -28,16 +27,16 @@ public class UserService(IRepository repository) : IUserService
         return true;
     }
 
-    public async Task<LoginResponse?> LoginAsync(string username, string password)
+    public async Task<string?> LoginAsync(string username, string password)
     {
         var efUser = await repository.GetUserByUsernameAsync(username);
-        if (efUser == null) return null;
-        if (!BCrypt.Net.BCrypt.Verify(password, efUser.HashedPassword)) return null;
+        if (efUser == null || !BCrypt.Net.BCrypt.Verify(password, efUser.HashedPassword))
+            return null;
 
-        return new LoginResponse { Token = GenerateJwt(efUser) };
+        return GenerateJwt(efUser);
     }
 
-    public async Task<Dictionary<string, List<CountrySummary>>?> GetStackAsync(string username)
+    public async Task<Dictionary<VisaType, List<ServiceModels.Country>>?> GetStackAsync(string username)
     {
         var efUser = await repository.GetUserWithPassportsAndDestinationsAsync(username);
         if (efUser == null) return null;
@@ -45,52 +44,43 @@ public class UserService(IRepository repository) : IUserService
         var user = efUser.ToServiceEntity();
         if (user.Passports == null || !user.Passports.Any()) return null;
 
-        var visaFree = new HashSet<string>();
-        var visaOnArrival = new HashSet<string>();
-        var eVisa = new HashSet<string>();
-        var required = new HashSet<string>();
-
         var buckets = new Dictionary<VisaType, HashSet<string>>
         {
-            [VisaType.VisaFree] = visaFree,
-            [VisaType.VisaOnArrival] = visaOnArrival,
-            [VisaType.EVisa] = eVisa,
-            [VisaType.RequiredVisa] = required
+            [VisaType.VisaFree] = new(),
+            [VisaType.VisaOnArrival] = new(),
+            [VisaType.EVisa] = new(),
+            [VisaType.RequiredVisa] = new()
         };
 
-        foreach (var passport in user.Passports)
-        {
-            foreach (var dest in passport.Destinations ?? [])
-                buckets[dest.VisaType].Add(dest.Country.IsoShortCode);
-        }
-
-        var isoToName = user.Passports
+        var countryLookup = user.Passports
             .SelectMany(p => p.Destinations ?? [])
             .GroupBy(d => d.Country.IsoShortCode)
-            .ToDictionary(g => g.Key, g => g.First().Country.Name);
+            .ToDictionary(g => g.Key, g => g.First().Country);
 
-        CountrySummary ToSummary(string iso) => new()
+        foreach (var passport in user.Passports)
+            foreach (var dest in passport.Destinations ?? [])
+                buckets[dest.VisaType].Add(dest.Country.IsoShortCode);
+
+        ServiceModels.Country Resolve(string iso) =>
+            countryLookup.GetValueOrDefault(iso)
+            ?? new ServiceModels.Country { Name = iso, IsoShortCode = iso };
+
+        var free = buckets[VisaType.VisaFree].ToHashSet();
+        var onArrival = buckets[VisaType.VisaOnArrival].Except(free).ToHashSet();
+        var evisa = buckets[VisaType.EVisa].Except(free).Except(onArrival).ToHashSet();
+        var allAccounted = free.Concat(onArrival).Concat(evisa).ToHashSet();
+        var required = buckets[VisaType.RequiredVisa].Except(allAccounted).ToHashSet();
+
+        return new Dictionary<VisaType, List<ServiceModels.Country>>
         {
-            IsoShortCode = iso,
-            Name = isoToName.GetValueOrDefault(iso, iso)
-        };
-
-        var stackedVisaFree = visaFree.ToHashSet();
-        var stackedVisaOnArrival = visaOnArrival.Except(stackedVisaFree).ToHashSet();
-        var stackedEVisa = eVisa.Except(stackedVisaFree).Except(stackedVisaOnArrival).ToHashSet();
-        var allAccounted = stackedVisaFree.Concat(stackedVisaOnArrival).Concat(stackedEVisa).ToHashSet();
-        var stackedRequired = required.Except(allAccounted).ToHashSet();
-
-        return new Dictionary<string, List<CountrySummary>>
-        {
-            [VisaTypeLabels.VisaFree] = stackedVisaFree.Select(ToSummary).ToList(),
-            [VisaTypeLabels.VisaOnArrival] = stackedVisaOnArrival.Select(ToSummary).ToList(),
-            [VisaTypeLabels.EVisa] = stackedEVisa.Select(ToSummary).ToList(),
-            [VisaTypeLabels.VisaRequired] = stackedRequired.Select(ToSummary).ToList()
+            [VisaType.VisaFree] = free.Select(Resolve).ToList(),
+            [VisaType.VisaOnArrival] = onArrival.Select(Resolve).ToList(),
+            [VisaType.EVisa] = evisa.Select(Resolve).ToList(),
+            [VisaType.RequiredVisa] = required.Select(Resolve).ToList()
         };
     }
 
-    // JWT generation uses the EF User entity to access the persisted Id
+    // JWT generation accesses the persisted EF User Id — kept as internal implementation detail
     private static string GenerateJwt(User user)
     {
         var secret = Environment.GetEnvironmentVariable("JWT_SECRET")
@@ -99,14 +89,12 @@ public class UserService(IRepository repository) : IUserService
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-        var claims = new[]
-        {
-            new Claim(ClaimTypes.Name, user.Username),
-            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString())
-        };
-
         var token = new JwtSecurityToken(
-            claims: claims,
+            claims:
+            [
+                new Claim(ClaimTypes.Name, user.Username),
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString())
+            ],
             expires: DateTime.UtcNow.AddDays(7),
             signingCredentials: creds
         );

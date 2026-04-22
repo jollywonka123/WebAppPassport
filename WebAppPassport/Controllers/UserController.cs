@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
-using WebAppPassport.Services.ResponseModels;
+using WebAppPassport.Controllers.Models;
+using WebAppPassport.Converters;
 using WebAppPassport.Services.UserService;
 
 namespace WebAppPassport.Controllers;
@@ -11,7 +12,8 @@ public class UserController(IUserService userService) : ControllerBase
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] RegisterRequest request)
     {
-        var success = await userService.RegisterAsync(request.Username, request.Password);
+        var (username, password) = request.ToCredentials();
+        var success = await userService.RegisterAsync(username, password);
         if (!success) return Conflict("Username already taken");
         return Ok();
     }
@@ -19,8 +21,9 @@ public class UserController(IUserService userService) : ControllerBase
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginRequest request)
     {
-        var result = await userService.LoginAsync(request.Username, request.Password);
-        if (result == null) return Unauthorized("Invalid credentials");
-        return Ok(result);
+        var (username, password) = request.ToCredentials();
+        var token = await userService.LoginAsync(username, password);
+        if (token == null) return Unauthorized("Invalid credentials");
+        return Ok(new TokenViewModel { Token = token });
     }
 }

@@ -1,12 +1,12 @@
-using WebAppPassport.Services.ResponseModels;
+using WebAppPassport.Services.Models;
 
 namespace WebAppPassport.Services.PassportService;
 
 public interface IPassportService
 {
-    Task<ICollection<PassportListItem>> GetAllPassportsAsync();
+    Task<ICollection<Passport>> GetAllPassportsAsync();
 
-    Task<PassportDetail?> GetPassportDetailAsync(string isoShortCode);
+    Task<Passport?> GetPassportDetailAsync(string isoShortCode);
 
-    Task<PassportRankInfo?> GetPassportByIsoAsync(string isoShortCode);
+    Task<Passport?> GetPassportByIsoAsync(string isoShortCode);
 }

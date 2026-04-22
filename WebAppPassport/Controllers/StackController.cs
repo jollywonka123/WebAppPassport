@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using WebAppPassport.Converters;
 using WebAppPassport.Services.UserService;
 
 namespace WebAppPassport.Controllers;
@@ -16,8 +17,9 @@ public class StackController(IUserService userService) : ControllerBase
         var username = User.FindFirstValue(ClaimTypes.Name);
         if (username == null) return Unauthorized();
 
-        var result = await userService.GetStackAsync(username);
-        if (result == null) return NotFound("No passports linked to this user");
-        return Ok(result);
+        var stack = await userService.GetStackAsync(username);
+        if (stack == null) return NotFound("No passports linked to this user");
+
+        return Ok(stack.ToStackViewModel());
     }
 }

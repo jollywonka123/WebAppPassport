@@ -79,9 +79,9 @@ public class BaseSyncService(
             var destinations = passport.PassportCountryVisas ?? [];
             passport.VisaFreeCount = destinations.Count(d => d.VisaType == VisaType.VisaFree);
             passport.VisaOnArrivalCount = destinations.Count(d => d.VisaType == VisaType.VisaOnArrival);
-            passport.EVisaCount = destinations.Count(d => d.VisaType == VisaType.EVisa);
+            passport.EVisaCount = destinations.Count(d => d.VisaType == VisaType.EVisa);; //d.VisaType == VisaType.EVisa
             passport.RequiredVisaCount = destinations.Count(d => d.VisaType == VisaType.RequiredVisa);
-            passport.MobilityScore = passport.VisaFreeCount + passport.VisaOnArrivalCount + passport.EVisaCount;
+            passport.MobilityScore = passport.VisaFreeCount + passport.VisaOnArrivalCount;
             passport.TotalPopulation = (passport.Countries ?? []).Sum(c => c.Population ?? 0);
         }
 

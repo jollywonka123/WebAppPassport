@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using WebAppPassport.Converters;
 using WebAppPassport.Services.RankService;
 
 namespace WebAppPassport.Controllers;
@@ -10,7 +11,7 @@ public class RankController(IRankService rankService) : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetRank()
     {
-        var result = await rankService.GetRankAsync();
-        return Ok(result);
+        var (passports, countries) = await rankService.GetRankAsync();
+        return Ok(FromServiceToViewModelConverter.ToRankViewModel(passports, countries));
     }
 }

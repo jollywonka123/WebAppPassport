@@ -1,7 +1,9 @@
 using System.Text;
 using DotNetEnv;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using Scalar.AspNetCore;
 using WebAppPassport.DataBase;
 using WebAppPassport.DataBase.Repositories;
 using WebAppPassport.Services.BackgroundServices;
@@ -16,6 +18,7 @@ var envPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Secrets", ".e
 Env.Load(envPath);
 
 var builder = WebApplication.CreateBuilder(args);
+builder.WebHost.UseUrls("http://0.0.0.0:5097");
 
 builder.Services.AddDatabase();
 builder.Services.AddControllers();
@@ -46,7 +49,35 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddAuthorization();
 
+// OpenAPI document generation (built-in .NET 10)
+builder.Services.AddOpenApi(options =>
+{
+    options.AddDocumentTransformer((document, _, _) =>
+    {
+        document.Info.Title = "WebAppPassport API";
+        document.Info.Version = "v1";
+        return Task.CompletedTask;
+    });
+});
+
 var app = builder.Build();
+
+// Apply pending EF migrations at startup
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<WebAppPassport.DataBase.AppContext>();
+    db.Database.Migrate();
+}
+
+// OpenAPI spec at /openapi/v1.json
+app.MapOpenApi();
+
+// Scalar UI at /scalar/v1  (supports Bearer auth out of the box)
+app.MapScalarApiReference(options =>
+{
+    options.Title = "WebAppPassport API";
+    options.WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient);
+});
 
 app.UseAuthentication();
 app.UseAuthorization();

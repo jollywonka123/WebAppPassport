@@ -12,8 +12,6 @@ public class Repository(AppContext context) : IRepository
 
     public async Task AddPassportCountryAsync(Country country, Passport passport)
     {
-        if (passport.Countries == null)
-            passport.Countries = new List<Country>();
         passport.Countries.Add(country);
         await Context.Passports.AddAsync(passport);
         await Context.Countries.AddAsync(country);
@@ -26,9 +24,7 @@ public class Repository(AppContext context) : IRepository
             throw new ArgumentException("Passport count must be equal to count of country");
         for (int i = 0; i < passports.Count; i++)
         {
-            if (passports.ElementAt(i).Countries == null)
-                passports.ElementAt(i).Countries = new List<Country>();
-            passports.ElementAt(i).Countries!.Add(countries.ElementAt(i));
+            passports.ElementAt(i).Countries.Add(countries.ElementAt(i));
         }
 
         await Context.Passports.AddRangeAsync(passports);
@@ -67,7 +63,7 @@ public class Repository(AppContext context) : IRepository
         if (foundUser == null)
             throw new ArgumentException("While linking Passport to User, User was not found");
 
-        foundUser.Passports!.Add(foundPassport);
+        foundUser.Passports.Add(foundPassport);
         await Context.SaveChangesAsync();
     }
 
@@ -81,7 +77,7 @@ public class Repository(AppContext context) : IRepository
         if (foundUser == null)
             throw new ArgumentException("While linking Passport to User, User was not found");
 
-        foundUser.Countries!.Add(foundCountry);
+        foundUser.Countries.Add(foundCountry);
         await Context.SaveChangesAsync();
     }
 
@@ -157,44 +153,65 @@ public class Repository(AppContext context) : IRepository
 
     public async Task UpdateDestinationsRangeAsync(ICollection<PassportCountryVisa> pcvs)
     {
+        var allPassports = await Context.Passports.ToListAsync();
+        var allCountries = await Context.Countries.ToListAsync();
+
         var existing = await Context.Destinations
             .Include(x => x.Passport)
             .Include(x => x.Country)
             .ToListAsync();
 
+        var toInsert = new List<PassportCountryVisa>();
+
         foreach (var pcv in pcvs)
         {
+            var passport = allPassports.FirstOrDefault(p => p.IsoShortCode == pcv.Passport.IsoShortCode);
+            if (passport == null) continue;
+
+            var country = allCountries.FirstOrDefault(c => c.IsoShortCode == pcv.Country.IsoShortCode);
+            if (country == null) continue;
+
             var found = existing.FirstOrDefault(x =>
                 x.Passport.IsoShortCode == pcv.Passport.IsoShortCode &&
                 x.Country.IsoShortCode == pcv.Country.IsoShortCode);
 
             if (found != null)
+            {
                 found.VisaType = pcv.VisaType;
+            }
+            else
+            {
+                toInsert.Add(new PassportCountryVisa
+                {
+                    Passport = passport,
+                    Country = country,
+                    VisaType = pcv.VisaType
+                });
+            }
         }
+
+        if (toInsert.Count > 0)
+            await Context.Destinations.AddRangeAsync(toInsert);
 
         await Context.SaveChangesAsync();
     }
 
     public async Task<Passport?> GetPassportWithDestinationsAsync(string isoShortCode)
     {
-#pragma warning disable CS8620
         return await Context.Passports
             .Include(p => p.Countries)
             .Include(p => p.PassportCountryVisas)
                 .ThenInclude(pcv => pcv.Country)
             .FirstOrDefaultAsync(p => p.IsoShortCode == isoShortCode);
-#pragma warning restore CS8620
     }
 
     public async Task<ICollection<Passport>> GetAllPassportsWithCountriesAndDestinationsAsync()
     {
-#pragma warning disable CS8620
         return await Context.Passports
             .Include(p => p.Countries)
             .Include(p => p.PassportCountryVisas)
                 .ThenInclude(pcv => pcv.Country)
             .ToListAsync();
-#pragma warning restore CS8620
     }
 
     public async Task<ICollection<Passport>> GetAllPassportsOrderedByRankAsync()
@@ -206,13 +223,11 @@ public class Repository(AppContext context) : IRepository
 
     public async Task<Country?> GetCountryWithDestinationsAsync(string isoShortCode)
     {
-#pragma warning disable CS8620
         return await Context.Countries
             .Include(c => c.PassportCountryVisas)
                 .ThenInclude(pcv => pcv.Passport)
                     .ThenInclude(p => p.Countries)
             .FirstOrDefaultAsync(c => c.IsoShortCode == isoShortCode);
-#pragma warning restore CS8620
     }
 
     public async Task<ICollection<Country>> GetAllCountriesWithPassportAsync()
@@ -235,12 +250,10 @@ public class Repository(AppContext context) : IRepository
 
     public async Task<User?> GetUserWithPassportsAndDestinationsAsync(string username)
     {
-#pragma warning disable CS8620
         return await Context.Users
             .Include(u => u.Passports)
                 .ThenInclude(p => p.PassportCountryVisas)
                     .ThenInclude(pcv => pcv.Country)
             .FirstOrDefaultAsync(u => u.Username == username);
-#pragma warning restore CS8620
     }
 }
