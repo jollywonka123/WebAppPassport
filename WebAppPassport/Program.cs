@@ -15,7 +15,8 @@ using WebAppPassport.Services.StaticDataServices;
 using WebAppPassport.Services.UserService;
 
 var envPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Secrets", ".env");
-Env.Load(envPath);
+if (File.Exists(envPath))
+    Env.Load(envPath);
 
 var builder = WebApplication.CreateBuilder(args);
 builder.WebHost.UseUrls("http://0.0.0.0:5097");
