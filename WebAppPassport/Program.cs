@@ -19,7 +19,8 @@ if (File.Exists(envPath))
     Env.Load(envPath);
 
 var builder = WebApplication.CreateBuilder(args);
-builder.WebHost.UseUrls("http://0.0.0.0:5097");
+var port = Environment.GetEnvironmentVariable("PORT") ?? "5097";
+builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
 
 builder.Services.AddDatabase();
 builder.Services.AddControllers();
