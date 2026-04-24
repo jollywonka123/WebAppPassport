@@ -3,6 +3,7 @@ using WebAppPassport.Converters;
 using WebAppPassport.Services.ExternalApiServices;
 using WebAppPassport.Services.Models;
 using WebAppPassport.DataBase.Repositories;
+using WebAppPassport.Services.StaticDataServices;
 
 namespace WebAppPassport.Services.BackgroundServices;
 
@@ -37,11 +38,36 @@ public class BaseSyncService(
         }
     }
 
+    private async Task InitIfEmptyAsync(IRepository repository, IExternalApiService apiService, IStaticService staticService)
+    {
+        var existing = await repository.GetAllPassportsAsync();
+        if (existing != null && existing.Any())
+            return;
+
+        _logger.LogInformation("DB is empty — initializing countries and passports from API");
+
+        var (countries, passports) = await apiService.GetAllCountriesAndPassportsAsync();
+        if (!countries.Any() || !passports.Any())
+        {
+            _logger.LogWarning("API returned no data for initialization");
+            return;
+        }
+
+        foreach (var country in countries)
+            staticService.EnrichCountry(country);
+
+        await repository.AddPassportCountryRangeAsync(passports.ToEfEntity(), countries.ToEfEntity());
+        _logger.LogInformation($"Initialized {passports.Count} passports and {countries.Count} countries");
+    }
+
     public async Task SyncIterAsync()
     {
         using var scope = _scopeFactory.CreateScope();
         var repository = scope.ServiceProvider.GetRequiredService<IRepository>();
         var apiService = scope.ServiceProvider.GetRequiredService<IExternalApiService>();
+        var staticService = scope.ServiceProvider.GetRequiredService<IStaticService>();
+
+        await InitIfEmptyAsync(repository, apiService, staticService);
 
         var efPassports = await repository.GetAllPassportsAsync();
         if (efPassports == null || !efPassports.Any())
