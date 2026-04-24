@@ -10,7 +10,7 @@ public static class Extensions
     {
         serviceCollection.AddDbContext<AppContext>(o =>
         {
-            var connectionString = Environment.GetEnvironmentVariable("ConnectionString");
+            var connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING");
 
             // "No Reset On Close" prevents Npgsql from sending DEALLOCATE ALL on connection
             // return to pool, which can corrupt protocol state after migrations.
@@ -19,7 +19,7 @@ public static class Extensions
             var builder = new Npgsql.NpgsqlConnectionStringBuilder(connectionString)
             {
                 NoResetOnClose = true,
-                MaxAutoPrepare = 0
+                MaxAutoPrepare = 0,
             };
 
             o.UseNpgsql(builder.ConnectionString);
