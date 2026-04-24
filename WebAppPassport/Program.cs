@@ -2,6 +2,7 @@ using System.Text;
 using DotNetEnv;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
 using WebAppPassport.DataBase;
@@ -89,6 +90,10 @@ app.MapScalarApiReference(options =>
     options.WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient);
 });
 
+app.UseForwardedHeaders(new ForwardedHeadersOptions
+{
+    ForwardedHeaders = ForwardedHeaders.XForwardedProto
+});
 app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
