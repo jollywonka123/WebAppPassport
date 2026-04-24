@@ -67,7 +67,7 @@ public class ExternalApiService(ILogger<ExternalApiService> logger) : IExternalA
             response.EnsureSuccessStatusCode();
             var countryFrom = JsonSerializer.Deserialize<CountryFrom>(response.Content.ReadAsStringAsync().Result);
             if (countryFrom?.Code == null) throw new NullReferenceException("After json deserialization model is null");
-            ProcessCountryFrom(countryFrom.CollectionEta!, VisaType.EVisa, ref listDestination, passport);
+            ProcessCountryFrom(countryFrom.CollectionEta!, VisaType.ETA, ref listDestination, passport);
             ProcessCountryFrom(countryFrom.CollectionFree!, VisaType.VisaFree, ref listDestination, passport);
             ProcessCountryFrom(countryFrom.CollectionOnArrival!, VisaType.VisaOnArrival, ref listDestination, passport);
             ProcessCountryFrom(countryFrom.CollectionOnline!, VisaType.RequiredVisa, ref listDestination, passport);

@@ -28,7 +28,7 @@ public static class FromServiceToEfConverter
             WorldRank = entity.WorldRank,
             VisaFreeCount = entity.VisaFreeCount,
             VisaOnArrivalCount = entity.VisaOnArrivalCount,
-            EVisaCount = entity.EVisaCount,
+            EtaCount = entity.EtaCount,
             RequiredVisaCount = entity.RequiredVisaCount,
             TotalPopulation = entity.TotalPopulation
         };

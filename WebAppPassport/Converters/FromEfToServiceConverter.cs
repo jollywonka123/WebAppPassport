@@ -41,7 +41,7 @@ public static class FromEfToServiceConverter
             WorldRank = entity.WorldRank,
             VisaFreeCount = entity.VisaFreeCount,
             VisaOnArrivalCount = entity.VisaOnArrivalCount,
-            EVisaCount = entity.EVisaCount,
+            EtaCount = entity.EtaCount,
             RequiredVisaCount = entity.RequiredVisaCount,
             TotalPopulation = entity.TotalPopulation,
             // Territories as summaries only — breaks Passport→Countries→Country→Passport cycle
@@ -99,7 +99,7 @@ public static class FromEfToServiceConverter
             WorldRank = p.WorldRank,
             VisaFreeCount = p.VisaFreeCount,
             VisaOnArrivalCount = p.VisaOnArrivalCount,
-            EVisaCount = p.EVisaCount,
+            EtaCount = p.EtaCount,
             RequiredVisaCount = p.RequiredVisaCount,
             TotalPopulation = p.TotalPopulation
         };

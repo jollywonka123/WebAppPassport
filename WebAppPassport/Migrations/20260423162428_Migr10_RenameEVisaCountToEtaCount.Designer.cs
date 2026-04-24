@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using WebAppPassport.DataBase;
@@ -11,9 +12,11 @@ using WebAppPassport.DataBase;
 namespace WebAppPassport.Migrations
 {
     [DbContext(typeof(WebAppPassport.DataBase.AppContext))]
-    partial class AppContextModelSnapshot : ModelSnapshot
+    [Migration("20260423162428_Migr10_RenameEVisaCountToEtaCount")]
+    partial class Migr10_RenameEVisaCountToEtaCount
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

@@ -69,7 +69,7 @@ public static class FromServiceToViewModelConverter
             WorldRank = p.WorldRank,
             VisaFreeCount = p.VisaFreeCount,
             VisaOnArrivalCount = p.VisaOnArrivalCount,
-            EVisaCount = p.EVisaCount,
+            EtaCount = p.EtaCount,
             RequiredVisaCount = p.RequiredVisaCount,
             TotalPopulation = p.TotalPopulation,
             Countries = (p.Countries ?? []).Select(ToSummaryViewModel).ToList(),
@@ -119,7 +119,7 @@ public static class FromServiceToViewModelConverter
     {
         [VisaTypeLabels.VisaFree] = new(),
         [VisaTypeLabels.VisaOnArrival] = new(),
-        [VisaTypeLabels.EVisa] = new(),
+        [VisaTypeLabels.ETA] = new(),
         [VisaTypeLabels.VisaRequired] = new()
     };
 
@@ -127,7 +127,7 @@ public static class FromServiceToViewModelConverter
     {
         [VisaTypeLabels.VisaFree] = new(),
         [VisaTypeLabels.VisaOnArrival] = new(),
-        [VisaTypeLabels.EVisa] = new(),
+        [VisaTypeLabels.ETA] = new(),
         [VisaTypeLabels.VisaRequired] = new()
     };
 }

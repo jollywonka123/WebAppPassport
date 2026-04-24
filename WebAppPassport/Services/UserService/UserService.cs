@@ -48,7 +48,7 @@ public class UserService(IRepository repository) : IUserService
         {
             [VisaType.VisaFree] = new(),
             [VisaType.VisaOnArrival] = new(),
-            [VisaType.EVisa] = new(),
+            [VisaType.ETA] = new(),
             [VisaType.RequiredVisa] = new()
         };
 
@@ -67,15 +67,15 @@ public class UserService(IRepository repository) : IUserService
 
         var free = buckets[VisaType.VisaFree].ToHashSet();
         var onArrival = buckets[VisaType.VisaOnArrival].Except(free).ToHashSet();
-        var evisa = buckets[VisaType.EVisa].Except(free).Except(onArrival).ToHashSet();
-        var allAccounted = free.Concat(onArrival).Concat(evisa).ToHashSet();
+        var eta = buckets[VisaType.ETA].Except(free).Except(onArrival).ToHashSet();
+        var allAccounted = free.Concat(onArrival).Concat(eta).ToHashSet();
         var required = buckets[VisaType.RequiredVisa].Except(allAccounted).ToHashSet();
 
         return new Dictionary<VisaType, List<ServiceModels.Country>>
         {
             [VisaType.VisaFree] = free.Select(Resolve).ToList(),
             [VisaType.VisaOnArrival] = onArrival.Select(Resolve).ToList(),
-            [VisaType.EVisa] = evisa.Select(Resolve).ToList(),
+            [VisaType.ETA] = eta.Select(Resolve).ToList(),
             [VisaType.RequiredVisa] = required.Select(Resolve).ToList()
         };
     }

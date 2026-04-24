@@ -4,6 +4,6 @@ public enum VisaType
 {
     VisaFree,
     VisaOnArrival,
-    EVisa,
+    ETA,
     RequiredVisa
 }

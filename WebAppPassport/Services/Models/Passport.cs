@@ -20,7 +20,7 @@ public class Passport
     public int WorldRank { get; set; }
     public int VisaFreeCount { get; set; }
     public int VisaOnArrivalCount { get; set; }
-    public int EVisaCount { get; set; }
+    public int EtaCount { get; set; }
     public int RequiredVisaCount { get; set; }
     public long? TotalPopulation { get; set; }
 }
