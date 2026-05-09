@@ -83,6 +83,7 @@ using (var scope = app.Services.CreateScope())
 // OpenAPI spec at /openapi/v1.json
 app.MapOpenApi();
 
+
 // Scalar UI at /scalar/v1  (supports Bearer auth out of the box)
 app.MapScalarApiReference(options =>
 {
