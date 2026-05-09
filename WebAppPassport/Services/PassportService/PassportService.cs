@@ -23,4 +23,10 @@ public class PassportService(IRepository repository) : IPassportService
         var efPassports = await repository.GetAllPassportsOrderedByRankAsync();
         return efPassports.ToServiceEntity().FirstOrDefault(p => p.IsoShortCode == isoShortCode);
     }
+
+    public async Task<ICollection<Passport>> GetPassportsByIsosAsync(IEnumerable<string> isos)
+    {
+        var efPassports = await repository.GetPassportsByIsosAsync(isos);
+        return efPassports.ToServiceEntity();
+    }
 }

@@ -113,6 +113,24 @@ public static class FromServiceToViewModelConverter
         );
     }
 
+    // ---- Profile ----
+
+    public static ProfileViewModel ToProfileViewModel(this ServiceModels.User user)
+    {
+        return new ProfileViewModel
+        {
+            Username = user.Username,
+            Passports = user.ShowPassports
+                ? (user.Passports ?? []).Select(p => p.ToListItemViewModel()).ToList()
+                : null,
+            PassportCount = user.ShowPassports ? user.Passports?.Count : null,
+            Countries = user.ShowCountries
+                ? (user.Countries ?? []).Select(ToSummaryViewModel).ToList()
+                : null,
+            CountryCount = user.ShowCountries ? user.Countries?.Count : null
+        };
+    }
+
     // ---- Helpers ----
 
     private static Dictionary<string, List<CountrySummaryViewModel>> EmptyDestinations() => new()

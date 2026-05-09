@@ -48,4 +48,18 @@ public interface IRepository
 
     public Task<User?> GetUserWithPassportsAndDestinationsAsync(string username);
 
+    public Task<User?> GetUserWithPassportsAndCountriesAsync(string username);
+
+    public Task<ICollection<Passport>> GetPassportsByIsosAsync(IEnumerable<string> isos);
+
+    public Task LinkPassportsToUserAsync(IEnumerable<string> isos, string username);
+
+    public Task LinkCountriesToUserAsync(IEnumerable<string> isos, string username);
+
+    public Task UnlinkPassportsFromUserAsync(string username, IEnumerable<string> isos);
+
+    public Task UnlinkCountriesFromUserAsync(string username, IEnumerable<string> isos);
+
+    public Task UpdateUserVisibilityAsync(string username, bool? showPassports, bool? showCountries);
+
 }

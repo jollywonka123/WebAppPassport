@@ -256,4 +256,112 @@ public class Repository(AppContext context) : IRepository
                     .ThenInclude(pcv => pcv.Country)
             .FirstOrDefaultAsync(u => u.Username == username);
     }
+
+    public async Task<User?> GetUserWithPassportsAndCountriesAsync(string username)
+    {
+        return await Context.Users
+            .Include(u => u.Passports)
+            .Include(u => u.Countries)
+            .FirstOrDefaultAsync(u => u.Username == username);
+    }
+
+    public async Task<ICollection<Passport>> GetPassportsByIsosAsync(IEnumerable<string> isos)
+    {
+        var isoList = isos.ToList();
+        return await Context.Passports
+            .Include(p => p.Countries)
+            .Include(p => p.PassportCountryVisas)
+                .ThenInclude(pcv => pcv.Country)
+            .Where(p => isoList.Contains(p.IsoShortCode))
+            .ToListAsync();
+    }
+
+    public async Task LinkPassportsToUserAsync(IEnumerable<string> isos, string username)
+    {
+        var isoList = isos.ToList();
+        var user = await Context.Users
+            .Include(u => u.Passports)
+            .FirstOrDefaultAsync(u => u.Username == username);
+
+        if (user == null) throw new ArgumentException("User not found");
+
+        var passports = await Context.Passports
+            .Where(p => isoList.Contains(p.IsoShortCode))
+            .ToListAsync();
+
+        var alreadyLinked = user.Passports.Select(p => p.IsoShortCode).ToHashSet();
+        foreach (var p in passports)
+        {
+            if (!alreadyLinked.Contains(p.IsoShortCode))
+                user.Passports.Add(p);
+        }
+
+        await Context.SaveChangesAsync();
+    }
+
+    public async Task LinkCountriesToUserAsync(IEnumerable<string> isos, string username)
+    {
+        var isoList = isos.ToList();
+        var user = await Context.Users
+            .Include(u => u.Countries)
+            .FirstOrDefaultAsync(u => u.Username == username);
+
+        if (user == null) throw new ArgumentException("User not found");
+
+        var countries = await Context.Countries
+            .Where(c => isoList.Contains(c.IsoShortCode))
+            .ToListAsync();
+
+        var alreadyLinked = user.Countries.Select(c => c.IsoShortCode).ToHashSet();
+        foreach (var c in countries)
+        {
+            if (!alreadyLinked.Contains(c.IsoShortCode))
+                user.Countries.Add(c);
+        }
+
+        await Context.SaveChangesAsync();
+    }
+
+    public async Task UnlinkPassportsFromUserAsync(string username, IEnumerable<string> isos)
+    {
+        var isoSet = isos.ToHashSet();
+        var user = await Context.Users
+            .Include(u => u.Passports)
+            .FirstOrDefaultAsync(u => u.Username == username);
+
+        if (user == null) return;
+
+        var toRemove = user.Passports.Where(p => isoSet.Contains(p.IsoShortCode)).ToList();
+        foreach (var p in toRemove)
+            user.Passports.Remove(p);
+
+        await Context.SaveChangesAsync();
+    }
+
+    public async Task UnlinkCountriesFromUserAsync(string username, IEnumerable<string> isos)
+    {
+        var isoSet = isos.ToHashSet();
+        var user = await Context.Users
+            .Include(u => u.Countries)
+            .FirstOrDefaultAsync(u => u.Username == username);
+
+        if (user == null) return;
+
+        var toRemove = user.Countries.Where(c => isoSet.Contains(c.IsoShortCode)).ToList();
+        foreach (var c in toRemove)
+            user.Countries.Remove(c);
+
+        await Context.SaveChangesAsync();
+    }
+
+    public async Task UpdateUserVisibilityAsync(string username, bool? showPassports, bool? showCountries)
+    {
+        var user = await Context.Users.FirstOrDefaultAsync(u => u.Username == username);
+        if (user == null) return;
+
+        if (showPassports.HasValue) user.ShowPassports = showPassports.Value;
+        if (showCountries.HasValue) user.ShowCountries = showCountries.Value;
+
+        await Context.SaveChangesAsync();
+    }
 }

@@ -9,4 +9,6 @@ public interface IPassportService
     Task<Passport?> GetPassportDetailAsync(string isoShortCode);
 
     Task<Passport?> GetPassportByIsoAsync(string isoShortCode);
+
+    Task<ICollection<Passport>> GetPassportsByIsosAsync(IEnumerable<string> isos);
 }

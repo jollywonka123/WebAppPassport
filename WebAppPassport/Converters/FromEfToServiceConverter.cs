@@ -79,7 +79,10 @@ public static class FromEfToServiceConverter
             Username = entity.Username,
             HashedPassword = entity.HashedPassword,
             MotherlandIso = entity.MotherlandIso,
-            Passports = entity.Passports?.Select(p => p.ToServiceEntity()).ToList()
+            ShowPassports = entity.ShowPassports,
+            ShowCountries = entity.ShowCountries,
+            Passports = entity.Passports?.Select(p => p.ToServiceEntity()).ToList(),
+            Countries = entity.Countries?.Select(CountrySummaryOnly).ToList()
         };
     }
 

@@ -12,5 +12,9 @@ public class User
     [MaxLength(2)]
     public string? MotherlandIso { get; set; }
 
+    public bool ShowPassports { get; set; } = true;
+    public bool ShowCountries { get; set; } = true;
+
     public ICollection<Passport>? Passports { get; set; }
+    public ICollection<Country>? Countries { get; set; }
 }

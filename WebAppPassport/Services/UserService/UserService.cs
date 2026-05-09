@@ -80,6 +80,42 @@ public class UserService(IRepository repository) : IUserService
         };
     }
 
+    public async Task AddPassportsAsync(string username, IEnumerable<string> isos)
+    {
+        await repository.LinkPassportsToUserAsync(isos, username);
+    }
+
+    public async Task AddCountriesAsync(string username, IEnumerable<string> isos)
+    {
+        await repository.LinkCountriesToUserAsync(isos, username);
+    }
+
+    public async Task RemovePassportsAsync(string username, IEnumerable<string> isos)
+    {
+        await repository.UnlinkPassportsFromUserAsync(username, isos);
+    }
+
+    public async Task RemoveCountriesAsync(string username, IEnumerable<string> isos)
+    {
+        await repository.UnlinkCountriesFromUserAsync(username, isos);
+    }
+
+    public async Task<ServiceModels.User?> GetPublicProfileAsync(string username)
+    {
+        var efUser = await repository.GetUserWithPassportsAndCountriesAsync(username);
+        return efUser?.ToServiceEntity();
+    }
+
+    public async Task SetPassportsVisibilityAsync(string username, bool show)
+    {
+        await repository.UpdateUserVisibilityAsync(username, show, null);
+    }
+
+    public async Task SetCountriesVisibilityAsync(string username, bool show)
+    {
+        await repository.UpdateUserVisibilityAsync(username, null, show);
+    }
+
     // JWT generation accesses the persisted EF User Id — kept as internal implementation detail
     private static string GenerateJwt(User user)
     {
