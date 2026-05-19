@@ -19,7 +19,7 @@ public class StackController(IUserService userService) : ControllerBase
     [ProducesResponseType<Dictionary<string, List<CountrySummaryViewModel>>>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType<string>(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<Dictionary<string, List<CountrySummaryViewModel>>>> GetStack()
+    public async Task<IActionResult> GetStack()
     {
         var username = User.FindFirstValue(ClaimTypes.Name);
         if (username == null) return Unauthorized();
