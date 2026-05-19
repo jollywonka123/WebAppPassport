@@ -86,16 +86,15 @@ builder.Services.AddOpenApi(options =>
             ```
             """;
 
-        if (document.Components is not null)
+        document.Components ??= new Microsoft.OpenApi.OpenApiComponents();
+        document.Components.SecuritySchemes ??= new Dictionary<string, Microsoft.OpenApi.IOpenApiSecurityScheme>();
+        document.Components.SecuritySchemes["Bearer"] = new Microsoft.OpenApi.OpenApiSecurityScheme
         {
-            document.Components.SecuritySchemes["Bearer"] = new Microsoft.OpenApi.OpenApiSecurityScheme
-            {
-                Type = Microsoft.OpenApi.SecuritySchemeType.Http,
-                Scheme = "bearer",
-                BearerFormat = "JWT",
-                Description = "Введите JWT-токен, полученный через POST /user/login"
-            };
-        }
+            Type = Microsoft.OpenApi.SecuritySchemeType.Http,
+            Scheme = "bearer",
+            BearerFormat = "JWT",
+            Description = "Введите JWT-токен, полученный через POST /user/login"
+        };
 
         return Task.CompletedTask;
     });
@@ -108,7 +107,13 @@ builder.Services.AddOpenApi(options =>
 
         if (isAuthorized)
         {
-            operation.Security = [new Microsoft.OpenApi.OpenApiSecurityRequirement { ["Bearer"] = [] }];
+            operation.Security =
+            [
+                new Microsoft.OpenApi.OpenApiSecurityRequirement
+                {
+                    { new Microsoft.OpenApi.OpenApiSecuritySchemeReference("Bearer"), [] }
+                }
+            ];
         }
 
         return Task.CompletedTask;
