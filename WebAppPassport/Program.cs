@@ -86,43 +86,29 @@ builder.Services.AddOpenApi(options =>
             ```
             """;
 
-        document.Components ??= new Microsoft.OpenApi.OpenApiComponents();
-        document.Components.SecuritySchemes["Bearer"] = new Microsoft.OpenApi.OpenApiSecurityScheme
+        if (document.Components is not null)
         {
-            Type = Microsoft.OpenApi.SecuritySchemeType.Http,
-            Scheme = "bearer",
-            BearerFormat = "JWT",
-            Description = "Введите JWT-токен, полученный через POST /user/login"
-        };
+            document.Components.SecuritySchemes["Bearer"] = new Microsoft.OpenApi.OpenApiSecurityScheme
+            {
+                Type = Microsoft.OpenApi.SecuritySchemeType.Http,
+                Scheme = "bearer",
+                BearerFormat = "JWT",
+                Description = "Введите JWT-токен, полученный через POST /user/login"
+            };
+        }
 
         return Task.CompletedTask;
     });
 
     options.AddOperationTransformer((operation, context, _) =>
     {
-        var authAttributes = context.Description.ActionDescriptor.EndpointMetadata
+        var isAuthorized = context.Description.ActionDescriptor.EndpointMetadata
             .OfType<Microsoft.AspNetCore.Authorization.AuthorizeAttribute>()
-            .ToList();
+            .Any();
 
-        if (authAttributes.Count > 0)
+        if (isAuthorized)
         {
-            operation.Security =
-            [
-                new Microsoft.OpenApi.OpenApiSecurityRequirement
-                {
-                    {
-                        new Microsoft.OpenApi.OpenApiSecurityScheme
-                        {
-                            Reference = new Microsoft.OpenApi.OpenApiReference
-                            {
-                                Type = Microsoft.OpenApi.ReferenceType.SecurityScheme,
-                                Id = "Bearer"
-                            }
-                        },
-                        []
-                    }
-                }
-            ];
+            operation.Security = [new Microsoft.OpenApi.OpenApiSecurityRequirement { ["Bearer"] = [] }];
         }
 
         return Task.CompletedTask;
