@@ -67,6 +67,65 @@ builder.Services.AddOpenApi(options =>
     {
         document.Info.Title = "WebAppPassport API";
         document.Info.Version = "v1";
+        document.Info.Description = """
+            ## API индекса паспортной мобильности
+
+            Сервис предоставляет актуальную информацию о мировом рейтинге паспортов и условиях въезда в страны мира.
+
+            ### Возможности
+            - Получение рейтинга и детальной информации по паспортам и странам
+            - Сравнение нескольких паспортов в одном запросе
+            - Управление личной коллекцией паспортов и посещённых стран
+            - Агрегированный стек доступных направлений по всем паспортам пользователя
+            - Публичные профили пользователей
+
+            ### Аутентификация
+            Защищённые эндпоинты требуют JWT-токен. Получите токен через `POST /user/login` и передавайте его в заголовке:
+            ```
+            Authorization: Bearer <token>
+            ```
+            """;
+
+        document.Components ??= new Microsoft.OpenApi.Models.OpenApiComponents();
+        document.Components.SecuritySchemes ??= new Dictionary<string, Microsoft.OpenApi.Models.OpenApiSecurityScheme>();
+        document.Components.SecuritySchemes["Bearer"] = new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+        {
+            Type = Microsoft.OpenApi.Models.SecuritySchemeType.Http,
+            Scheme = "bearer",
+            BearerFormat = "JWT",
+            Description = "Введите JWT-токен, полученный через POST /user/login"
+        };
+
+        return Task.CompletedTask;
+    });
+
+    options.AddOperationTransformer((operation, context, _) =>
+    {
+        var authAttributes = context.Description.ActionDescriptor.EndpointMetadata
+            .OfType<Microsoft.AspNetCore.Authorization.AuthorizeAttribute>()
+            .ToList();
+
+        if (authAttributes.Count > 0)
+        {
+            operation.Security =
+            [
+                new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+                {
+                    {
+                        new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+                        {
+                            Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                            {
+                                Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+                                Id = "Bearer"
+                            }
+                        },
+                        []
+                    }
+                }
+            ];
+        }
+
         return Task.CompletedTask;
     });
 });
@@ -89,6 +148,10 @@ app.MapScalarApiReference(options =>
 {
     options.Title = "WebAppPassport API";
     options.WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient);
+    options.Authentication = new Scalar.AspNetCore.ScalarAuthenticationOptions
+    {
+        PreferredSecurityScheme = "Bearer"
+    };
 });
 
 var forwardedOptions = new ForwardedHeadersOptions
