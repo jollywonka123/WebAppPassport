@@ -35,6 +35,7 @@ public class PassportController(IPassportService passportService) : ControllerBa
     [EndpointSummary("Получить рейтинговую информацию о паспорте по ISO-коду")]
     [EndpointDescription("Возвращает краткую рейтинговую информацию о паспорте: позицию в мировом рейтинге, индекс мобильности и ссылку на детальную страницу. ISO-код передаётся как query-параметр.")]
     [ProducesResponseType<PassportRankInfoViewModel>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetByIso([FromQuery] string iso)
     {
