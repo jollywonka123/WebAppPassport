@@ -86,11 +86,10 @@ builder.Services.AddOpenApi(options =>
             ```
             """;
 
-        document.Components ??= new Microsoft.OpenApi.Models.OpenApiComponents();
-        document.Components.SecuritySchemes ??= new Dictionary<string, Microsoft.OpenApi.Models.OpenApiSecurityScheme>();
-        document.Components.SecuritySchemes["Bearer"] = new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+        document.Components ??= new Microsoft.OpenApi.OpenApiComponents();
+        document.Components.SecuritySchemes["Bearer"] = new Microsoft.OpenApi.OpenApiSecurityScheme
         {
-            Type = Microsoft.OpenApi.Models.SecuritySchemeType.Http,
+            Type = Microsoft.OpenApi.SecuritySchemeType.Http,
             Scheme = "bearer",
             BearerFormat = "JWT",
             Description = "Введите JWT-токен, полученный через POST /user/login"
@@ -109,14 +108,14 @@ builder.Services.AddOpenApi(options =>
         {
             operation.Security =
             [
-                new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+                new Microsoft.OpenApi.OpenApiSecurityRequirement
                 {
                     {
-                        new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+                        new Microsoft.OpenApi.OpenApiSecurityScheme
                         {
-                            Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                            Reference = new Microsoft.OpenApi.OpenApiReference
                             {
-                                Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+                                Type = Microsoft.OpenApi.ReferenceType.SecurityScheme,
                                 Id = "Bearer"
                             }
                         },
@@ -150,7 +149,7 @@ app.MapScalarApiReference(options =>
     options.WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient);
     options.Authentication = new Scalar.AspNetCore.ScalarAuthenticationOptions
     {
-        PreferredSecurityScheme = "Bearer"
+        PreferredSecuritySchemes = ["Bearer"]
     };
 });
 
