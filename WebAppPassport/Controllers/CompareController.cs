@@ -14,7 +14,7 @@ public class CompareController(IPassportService passportService) : ControllerBas
     [EndpointDescription("Возвращает детальную информацию для нескольких паспортов одновременно. Параметр `isos` принимает список ISO-кодов через запятую (например: `RU,DE,US`). Удобно для визуального сравнения условий въезда разных стран.")]
     [ProducesResponseType<List<PassportDetailViewModel>>(StatusCodes.Status200OK)]
     [ProducesResponseType<string>(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> Compare([FromQuery] string isos)
+    public async Task<ActionResult<List<PassportDetailViewModel>>> Compare([FromQuery] string isos)
     {
         var isoList = isos.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
         if (isoList.Length == 0) return BadRequest("No ISO codes provided");

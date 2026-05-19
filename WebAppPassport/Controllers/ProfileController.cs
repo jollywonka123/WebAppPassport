@@ -14,7 +14,7 @@ public class ProfileController(IUserService userService) : ControllerBase
     [EndpointDescription("Возвращает публичную информацию профиля пользователя: имя, список паспортов и посещённых стран (если пользователь разрешил их показ). Если видимость отключена — возвращается только количество элементов.")]
     [ProducesResponseType<ProfileViewModel>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetProfile(string username)
+    public async Task<ActionResult<ProfileViewModel>> GetProfile(string username)
     {
         var user = await userService.GetPublicProfileAsync(username);
         if (user == null) return NotFound();

@@ -32,7 +32,7 @@ public class UserController(IUserService userService) : ControllerBase
     [ProducesResponseType<TokenViewModel>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType<string>(StatusCodes.Status401Unauthorized)]
-    public async Task<IActionResult> Login([FromBody] LoginRequest request)
+    public async Task<ActionResult<TokenViewModel>> Login([FromBody] LoginRequest request)
     {
         var (username, password) = request.ToCredentials();
         var token = await userService.LoginAsync(username, password);

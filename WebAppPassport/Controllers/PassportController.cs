@@ -13,7 +13,7 @@ public class PassportController(IPassportService passportService) : ControllerBa
     [EndpointSummary("Получить список всех паспортов")]
     [EndpointDescription("Возвращает список всех паспортов с базовой информацией: название страны, ISO-код и ссылка на детальную страницу.")]
     [ProducesResponseType<List<PassportListItemViewModel>>(StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetAll()
+    public async Task<ActionResult<List<PassportListItemViewModel>>> GetAll()
     {
         var passports = await passportService.GetAllPassportsAsync();
         return Ok(passports.Select(p => p.ToListItemViewModel()).ToList());
@@ -24,7 +24,7 @@ public class PassportController(IPassportService passportService) : ControllerBa
     [EndpointDescription("Возвращает подробные сведения о паспорте по ISO-коду страны: индекс мобильности, мировой рейтинг, статистику по типам въезда и список всех доступных направлений с разбивкой по визовым категориям.")]
     [ProducesResponseType<PassportDetailViewModel>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetDetail(string isoShortCode)
+    public async Task<ActionResult<PassportDetailViewModel>> GetDetail(string isoShortCode)
     {
         var passport = await passportService.GetPassportDetailAsync(isoShortCode);
         if (passport == null) return NotFound();
@@ -37,7 +37,7 @@ public class PassportController(IPassportService passportService) : ControllerBa
     [ProducesResponseType<PassportRankInfoViewModel>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetByIso([FromQuery] string iso)
+    public async Task<ActionResult<PassportRankInfoViewModel>> GetByIso([FromQuery] string iso)
     {
         var passport = await passportService.GetPassportByIsoAsync(iso);
         if (passport == null) return NotFound();
