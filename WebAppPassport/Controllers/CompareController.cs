@@ -13,7 +13,7 @@ public class CompareController(IPassportService passportService) : ControllerBas
     [EndpointSummary("Сравнить несколько паспортов")]
     [EndpointDescription("Возвращает детальную информацию для нескольких паспортов одновременно. Параметр `isos` принимает список ISO-кодов через запятую (например: `RU,DE,US`). Удобно для визуального сравнения условий въезда разных стран.")]
     [ProducesResponseType<List<PassportDetailViewModel>>(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType<string>(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Compare([FromQuery] string isos)
     {
         var isoList = isos.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);

@@ -17,7 +17,7 @@ public class UserController(IUserService userService) : ControllerBase
     [EndpointDescription("Создаёт новую учётную запись пользователя. Имя пользователя должно быть уникальным. Пароль хранится в зашифрованном виде.")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    [ProducesResponseType<string>(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> Register([FromBody] RegisterRequest request)
     {
         var (username, password) = request.ToCredentials();
@@ -31,7 +31,7 @@ public class UserController(IUserService userService) : ControllerBase
     [EndpointDescription("Аутентифицирует пользователя по имени и паролю. В случае успеха возвращает JWT-токен, который необходимо передавать в заголовке `Authorization: Bearer <token>` для защищённых эндпоинтов.")]
     [ProducesResponseType<TokenViewModel>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType<string>(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> Login([FromBody] LoginRequest request)
     {
         var (username, password) = request.ToCredentials();
@@ -45,7 +45,7 @@ public class UserController(IUserService userService) : ControllerBase
     [EndpointSummary("Добавить паспорта в коллекцию пользователя")]
     [EndpointDescription("Привязывает один или несколько паспортов к профилю текущего пользователя. Параметр `isos` — список ISO-кодов через запятую (например: `RU,DE`). Требуется JWT-токен.")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType<string>(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> AddPassport([FromQuery] string isos)
     {
@@ -64,7 +64,7 @@ public class UserController(IUserService userService) : ControllerBase
     [EndpointSummary("Добавить посещённые страны в профиль пользователя")]
     [EndpointDescription("Добавляет одну или несколько стран в список посещённых стран текущего пользователя. Параметр `isos` — список ISO-кодов через запятую. Требуется JWT-токен.")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType<string>(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> AddCountry([FromQuery] string isos)
     {
@@ -83,7 +83,7 @@ public class UserController(IUserService userService) : ControllerBase
     [EndpointSummary("Удалить паспорта из коллекции пользователя")]
     [EndpointDescription("Отвязывает один или несколько паспортов от профиля текущего пользователя. Параметр `isos` — список ISO-кодов через запятую. Требуется JWT-токен.")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType<string>(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> RemovePassport([FromQuery] string isos)
     {
@@ -102,7 +102,7 @@ public class UserController(IUserService userService) : ControllerBase
     [EndpointSummary("Удалить страны из профиля пользователя")]
     [EndpointDescription("Убирает одну или несколько стран из списка посещённых стран текущего пользователя. Параметр `isos` — список ISO-кодов через запятую. Требуется JWT-токен.")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType<string>(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> RemoveCountry([FromQuery] string isos)
     {

@@ -18,7 +18,7 @@ public class StackController(IUserService userService) : ControllerBase
     [EndpointDescription("Возвращает агрегированный список стран, доступных владельцу всех его паспортов, с разбивкой по типу въезда: безвизовый, виза по прибытии, электронное разрешение и т.д. Требуется JWT-токен.")]
     [ProducesResponseType<Dictionary<string, List<CountrySummaryViewModel>>>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType<string>(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetStack()
     {
         var username = User.FindFirstValue(ClaimTypes.Name);
